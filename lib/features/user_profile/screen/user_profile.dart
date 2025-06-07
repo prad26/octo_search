@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:octo_search/core/utils/url_launcher.dart';
+import 'package:octo_search/core/helpers/url_launcher.dart';
 import 'package:octo_search/core/widgets/error_message.dart';
 import 'package:octo_search/core/widgets/loading.dart';
 import 'package:octo_search/core/widgets/no_data.dart';
 import 'package:octo_search/data/api/github_api_service.dart';
 import 'package:octo_search/data/models/user_profile.dart';
+import 'package:octo_search/features/user_profile/widgets/repository_list.dart';
 
 /// Screen to display detailed profile information for a GitHub user.
 ///
@@ -108,6 +109,12 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
         const SizedBox.shrink(), // using the spacing property of Column.
         _buildHeader(),
         _buildInfo(),
+        Expanded(
+          child: RepositoryList(
+            username: widget.username,
+            numberFormat: _numberFormat,
+          ),
+        ),
       ],
     );
   }

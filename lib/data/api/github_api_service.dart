@@ -1,6 +1,8 @@
 import 'dart:convert';
 
 import 'package:http/http.dart' as http;
+import 'package:octo_search/core/enums/repository_filters.dart';
+import 'package:octo_search/data/models/repository_search.dart';
 import 'package:octo_search/data/models/user_search.dart';
 import 'package:octo_search/data/models/user_profile.dart';
 
@@ -32,7 +34,9 @@ class GitHubApiService {
         final decodedResponse = json.decode(response.body);
         return decodedResponse as Map<String, dynamic>;
       } else {
-        throw Exception('Failed to load data from GitHub API, status code: ${response.statusCode}');
+        throw Exception(
+          'Failed to load data from GitHub API. \nStatus code: ${response.statusCode} \nResponse: ${response.body}',
+        );
       }
     } catch (e) {
       throw Exception('Error fetching data from GitHub API: $e');
@@ -66,7 +70,7 @@ class GitHubApiService {
   /// Retrieves detailed profile information for a specific GitHub user.
   ///
   /// Returns a [UserProfile] object containing the user's details.
-  /// 
+  ///
   /// For more information, see: https://docs.github.com/en/rest/users/users#get-a-user
   static Future<UserProfile> getUserProfile(String username) async {
     final response = await _fetchFromApi('/users/$username');
@@ -75,6 +79,31 @@ class GitHubApiService {
       return UserProfile.fromJson(response);
     } catch (e) {
       throw Exception('Error parsing user profile response: $e');
+    }
+  }
+
+  /// Searches for repositories owned by a specific user with optional filters.
+  ///
+  /// Returns a [RepositorySearch] object containing the search results.
+  ///
+  /// For more information, see: https://docs.github.com/en/rest/search/search#search-repositories
+  static Future<RepositorySearch> getRepositories(
+    String username, {
+    int page = 1,
+    int perPage = defaultPerPage,
+    RepositoryFilters filter = RepositoryFilters.nonForked,
+  }) async {
+    final queryParams = {
+      'q': 'user:$username ${filter.query}',
+      'page': page.toString(),
+      'per_page': perPage.toString(),
+    };
+    final response = await _fetchFromApi('/search/repositories', queryParams: queryParams);
+
+    try {
+      return RepositorySearch.fromJson(response);
+    } catch (e) {
+      throw Exception('Error parsing repository search response: $e');
     }
   }
 }

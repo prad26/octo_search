@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:octo_search/core/utils/error_snack_bar.dart';
+import 'package:octo_search/core/helpers/error_snack_bar.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 /// Opens a URL in the appropriate app or browser.
