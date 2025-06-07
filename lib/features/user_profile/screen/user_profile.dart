@@ -4,6 +4,7 @@ import 'package:octo_search/core/helpers/url_launcher.dart';
 import 'package:octo_search/core/widgets/error_message.dart';
 import 'package:octo_search/core/widgets/loading.dart';
 import 'package:octo_search/core/widgets/no_data.dart';
+import 'package:octo_search/core/widgets/scroll_top_floating_button.dart';
 import 'package:octo_search/data/api/github_api_service.dart';
 import 'package:octo_search/data/models/user_profile.dart';
 import 'package:octo_search/features/user_profile/widgets/repository_list.dart';
@@ -37,12 +38,13 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
   UserProfile? _user;
   String? _errorMessage;
   final NumberFormat _numberFormat = NumberFormat.decimalPattern();
+  final ScrollController _scrollController = ScrollController();
 
   void _openLink(String url) {
     openLink(context, url);
   }
 
-  Future<void> _loadUserData() async {
+  Future<void> _getUserProfile() async {
     setState(() {
       _isLoading = true;
       _errorMessage = null;
@@ -65,7 +67,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
   @override
   void initState() {
     super.initState();
-    _loadUserData();
+    _getUserProfile();
   }
 
   @override
@@ -75,6 +77,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         title: Text('OctoSearch: ${widget.username}'),
       ),
+      floatingActionButton: ScrollTopFloatingButton(controller: _scrollController),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -94,7 +97,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
     if (_errorMessage != null) {
       return ErrorMessage(
         message: _errorMessage!,
-        onRetry: _loadUserData,
+        onRetry: _getUserProfile,
       );
     }
 
@@ -113,6 +116,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
           child: RepositoryList(
             username: widget.username,
             numberFormat: _numberFormat,
+            scrollController: _scrollController,
           ),
         ),
       ],
@@ -229,7 +233,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
         children: [
           Icon(
             icon,
-            size: 20,
+            size: 16,
             color: Theme.of(context).colorScheme.primary,
           ),
           Text(

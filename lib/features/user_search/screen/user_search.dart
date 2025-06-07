@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:octo_search/core/widgets/error_message.dart';
-import 'package:octo_search/core/widgets/loading.dart';
-import 'package:octo_search/core/widgets/no_data.dart';
+import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
+import 'package:octo_search/core/widgets/infinite_scroll_list.dart';
+import 'package:octo_search/core/widgets/scroll_top_floating_button.dart';
 import 'package:octo_search/data/api/github_api_service.dart';
 import 'package:octo_search/data/models/user_search.dart';
 import 'package:octo_search/core/widgets/expressive_list_tile.dart';
@@ -29,49 +29,43 @@ class UserSearchScreen extends StatefulWidget {
 
 class _UserSearchScreenState extends State<UserSearchScreen> {
   final TextEditingController _searchTextController = TextEditingController();
-  List<UserSearchItem> _users = [];
-  bool _isLoading = false;
-  String? _errorMessage;
-  bool _hasSearched = false;
+  final ScrollController _scrollController = ScrollController();
+  static const _pageSize = GitHubApiService.defaultPerPage;
 
-  Future<void> _fetchUsers() async {
+  late final PagingController<int, UserSearchItem> _pagingController = PagingController(
+    getNextPageKey: (state) {
+      final lastPage = state.pages?.lastOrNull;
+      final isLastPageLessThanPageSize = lastPage != null && lastPage.length < _pageSize;
+      if (isLastPageLessThanPageSize || state.lastPageIsEmpty) {
+        // If the last page has fewer items than the page size, it means there are no more pages.
+        return null;
+      }
+
+      return state.nextIntPageKey;
+    },
+    fetchPage: (pageKey) => _getUsers(pageKey),
+  );
+
+  Future<List<UserSearchItem>> _getUsers(int page) async {
     final query = _searchTextController.text.trim();
     if (query.isEmpty) {
-      return;
+      return [];
     }
 
-    setState(() {
-      _isLoading = true;
-      _errorMessage = null;
-    });
+    final result = await GitHubApiService.getUsers(
+      query,
+      page: page,
+      perPage: _pageSize,
+    );
 
-    try {
-      final result = await GitHubApiService.searchUsers(query);
-      setState(() {
-        _users = result.items;
-        _hasSearched = true;
-        _isLoading = false;
-      });
-    } catch (error) {
-      setState(() {
-        _errorMessage = "Failed to fetch users:\n$error";
-        _isLoading = false;
-        _hasSearched = true;
-      });
-    }
-  }
-
-  void _clearSearch() {
-    setState(() {
-      _users = [];
-      _errorMessage = null;
-      _hasSearched = false;
-    });
+    return result.items;
   }
 
   @override
   void dispose() {
     _searchTextController.dispose();
+    _pagingController.dispose();
+    _scrollController.dispose();
     super.dispose();
   }
 
@@ -82,6 +76,7 @@ class _UserSearchScreenState extends State<UserSearchScreen> {
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         title: const Text('OctoSearch'),
       ),
+      floatingActionButton: ScrollTopFloatingButton(controller: _scrollController),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.only(
@@ -93,13 +88,13 @@ class _UserSearchScreenState extends State<UserSearchScreen> {
             spacing: 12,
             children: [
               SearchInput(
-                controller: _searchTextController,
-                onSubmitted: (_) => _fetchUsers(),
                 hintText: 'Search GitHub Users',
-                onClear: _clearSearch,
+                controller: _searchTextController,
+                onSubmitted: (_) => _pagingController.refresh(),
+                onClear: () => _pagingController.refresh(),
               ),
               Expanded(
-                child: _buildContent(),
+                child: _buildUserList(),
               ),
             ],
           ),
@@ -108,45 +103,16 @@ class _UserSearchScreenState extends State<UserSearchScreen> {
     );
   }
 
-  Widget _buildContent() {
-    if (_isLoading) {
-      return Loading(
-        message: 'Searching for users...',
-      );
-    }
-
-    if (_errorMessage != null) {
-      return ErrorMessage(
-        message: _errorMessage!,
-        onRetry: _fetchUsers,
-      );
-    }
-
-    if (_users.isEmpty) {
-      if (_hasSearched) {
-        // Empty search results
-        return NoData(message: 'No users found matching your search');
-      } else {
-        // Initial state - no search performed yet
-        return NoData(
-          message: 'Enter a name to search for users',
-          icon: Icons.search,
-        );
-      }
-    }
-
-    return _buildUserList();
-  }
-
   Widget _buildUserList() {
-    return ListView.builder(
-      itemCount: _users.length,
-      itemBuilder: (context, index) {
-        final user = _users[index];
-
+    return InfiniteScrollList(
+      itemName: 'users',
+      controller: _pagingController,
+      scrollController: _scrollController,
+      fetchPage: _getUsers,
+      itemBuilder: (context, index, user, itemsLength) {
         return ExpressiveListTile(
           isFirst: index == 0,
-          isLast: index == _users.length - 1,
+          isLast: index == itemsLength - 1,
           padding: const EdgeInsets.symmetric(
             horizontal: 16,
             vertical: 4,

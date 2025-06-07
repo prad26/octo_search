@@ -6,15 +6,15 @@ import 'package:flutter/material.dart';
 /// functionality, featuring a search icon and a clear button that appears when
 /// text is entered.
 class SearchInput extends StatefulWidget {
-  final TextEditingController controller;
   final String hintText;
+  final TextEditingController controller;
   final ValueChanged<String> onSubmitted;
   final VoidCallback onClear;
 
   const SearchInput({
     super.key,
-    required this.controller,
     required this.hintText,
+    required this.controller,
     required this.onSubmitted,
     required this.onClear,
   });

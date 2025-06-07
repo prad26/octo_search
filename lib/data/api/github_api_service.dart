@@ -48,7 +48,7 @@ class GitHubApiService {
   /// Returns a [UserSearch] object containing the search results.
   ///
   /// For more information, see: https://docs.github.com/en/rest/search/search#search-users
-  static Future<UserSearch> searchUsers(
+  static Future<UserSearch> getUsers(
     String query, {
     int page = 1,
     int perPage = defaultPerPage,

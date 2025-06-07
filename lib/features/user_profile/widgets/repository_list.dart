@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:intl/intl.dart';
 import 'package:octo_search/core/enums/repository_filters.dart';
 import 'package:octo_search/core/helpers/get_language_color.dart';
 import 'package:octo_search/core/helpers/url_launcher.dart';
 import 'package:octo_search/core/widgets/container_chip.dart';
-import 'package:octo_search/core/widgets/error_message.dart';
 import 'package:octo_search/core/widgets/expressive_list_tile.dart';
-import 'package:octo_search/core/widgets/loading.dart';
-import 'package:octo_search/core/widgets/no_data.dart';
+import 'package:octo_search/core/widgets/infinite_scroll_list.dart';
 import 'package:octo_search/data/api/github_api_service.dart';
 import 'package:octo_search/data/models/repository_search.dart';
 
@@ -19,11 +18,13 @@ import 'package:octo_search/data/models/repository_search.dart';
 class RepositoryList extends StatefulWidget {
   final String username;
   final NumberFormat numberFormat;
+  final ScrollController scrollController;
 
   const RepositoryList({
     super.key,
     required this.username,
     required this.numberFormat,
+    required this.scrollController,
   });
 
   @override
@@ -33,39 +34,37 @@ class RepositoryList extends StatefulWidget {
 class _RepositoryListState extends State<RepositoryList> {
   RepositoryFilters _selectedFilter = RepositoryFilters.nonForked;
   int? _repoCount;
-  String? _errorMessage;
-  bool _isLoading = true;
-  List<RepositoryItem> _repositories = [];
+  static const _pageSize = GitHubApiService.defaultPerPage;
 
-  Future<void> _fetchRepos() async {
-    setState(() {
-      _repoCount = null;
-      _isLoading = true;
-      _errorMessage = null;
-    });
+  late final PagingController<int, RepositoryItem> _pagingController = PagingController(
+    getNextPageKey: (state) {
+      final lastPage = state.pages?.lastOrNull;
+      final isLastPageLessThanPageSize = lastPage != null && lastPage.length < _pageSize;
+      if (isLastPageLessThanPageSize || state.lastPageIsEmpty) {
+        // If the last page has fewer items than the page size, it means there are no more pages.
+        return null;
+      }
 
-    try {
-      final result = await GitHubApiService.getRepositories(
-        widget.username,
-        filter: _selectedFilter,
-      );
+      return state.nextIntPageKey;
+    },
+    fetchPage: (pageKey) => _getRepositories(pageKey),
+  );
+
+  Future<List<RepositoryItem>> _getRepositories(int page) async {
+    final result = await GitHubApiService.getRepositories(
+      widget.username,
+      filter: _selectedFilter,
+      page: page,
+      perPage: _pageSize,
+    );
+
+    if (_repoCount == null) {
       setState(() {
-        _repositories = result.items;
         _repoCount = result.totalCount;
-        _isLoading = false;
-      });
-    } catch (error) {
-      setState(() {
-        _errorMessage = "Failed to load user:\n$error";
-        _isLoading = false;
       });
     }
-  }
 
-  @override
-  void initState() {
-    super.initState();
-    _fetchRepos();
+    return result.items;
   }
 
   void _openLink(String url) {
@@ -77,9 +76,10 @@ class _RepositoryListState extends State<RepositoryList> {
 
     setState(() {
       _selectedFilter = filter;
+      _repoCount = null;
     });
 
-    _fetchRepos();
+    _pagingController.refresh();
   }
 
   @override
@@ -90,7 +90,7 @@ class _RepositoryListState extends State<RepositoryList> {
       children: [
         _buildHeader(),
         Expanded(
-          child: _buildContent(),
+          child: _buildRepoList(),
         ),
       ],
     );
@@ -156,37 +156,18 @@ class _RepositoryListState extends State<RepositoryList> {
     );
   }
 
-  Widget _buildContent() {
-    if (_isLoading) {
-      return Loading(
-        message: 'Loading repositories...',
-      );
-    }
-
-    if (_errorMessage != null) {
-      return ErrorMessage(
-        message: _errorMessage!,
-        onRetry: _fetchRepos,
-      );
-    }
-
-    if (_repositories.isEmpty) {
-      return NoData(message: 'No repositories found for');
-    }
-
-    return _buildRepoList();
-  }
-
   Widget _buildRepoList() {
-    return ListView.builder(
-      itemCount: _repositories.length,
-      itemBuilder: (context, index) {
-        final repo = _repositories[index];
+    return InfiniteScrollList(
+      itemName: 'repositories',
+      controller: _pagingController,
+      scrollController: widget.scrollController,
+      fetchPage: _getRepositories,
+      itemBuilder: (context, index, repo, itemsLength) {
         final languageColor = getColorForLanguage(repo.language);
 
         return ExpressiveListTile(
           isFirst: index == 0,
-          isLast: index == _repositories.length - 1,
+          isLast: index == itemsLength - 1,
           padding: const EdgeInsets.symmetric(
             horizontal: 12,
             vertical: 8,
