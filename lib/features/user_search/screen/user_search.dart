@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:octo_search/core/helpers/github_error_handler.dart';
 import 'package:octo_search/core/widgets/infinite_scroll_list.dart';
+import 'package:octo_search/core/widgets/no_data.dart';
 import 'package:octo_search/core/widgets/scroll_top_floating_button.dart';
 import 'package:octo_search/data/api/github_api_service.dart';
 import 'package:octo_search/data/models/user_search.dart';
@@ -115,6 +116,12 @@ class _UserSearchScreenState extends State<UserSearchScreen> {
       controller: _pagingController,
       scrollController: _scrollController,
       fetchPage: _getUsers,
+      noItemsFoundIndicatorBuilder: (context) {
+        return NoData(
+          message: 'Search for users by name, username...',
+          icon: Icons.search_rounded,
+        );
+      },
       itemBuilder: (context, index, user, itemsLength) {
         return ExpressiveListTile(
           isFirst: index == 0,

@@ -17,6 +17,7 @@ class InfiniteScrollList<T> extends StatelessWidget {
   final ScrollController? scrollController;
   final FutureOr<List<T>> Function(int pageKey) fetchPage;
   final Widget Function(BuildContext context, int index, T item, int itemsLength) itemBuilder;
+  final Widget Function(BuildContext context)? noItemsFoundIndicatorBuilder;
 
   const InfiniteScrollList({
     super.key,
@@ -25,6 +26,7 @@ class InfiniteScrollList<T> extends StatelessWidget {
     this.scrollController,
     required this.fetchPage,
     required this.itemBuilder,
+    this.noItemsFoundIndicatorBuilder,
   });
 
   String get _itemName => itemName ?? 'data';
@@ -45,6 +47,10 @@ class InfiniteScrollList<T> extends StatelessWidget {
                 return itemBuilder(context, index, item, state.items?.length ?? 0);
               },
               noItemsFoundIndicatorBuilder: (context) {
+                if (noItemsFoundIndicatorBuilder != null) {
+                  return noItemsFoundIndicatorBuilder!(context);
+                }
+
                 return NoData(
                   message: 'No $_itemName found',
                   icon: Icons.search_off_rounded,
