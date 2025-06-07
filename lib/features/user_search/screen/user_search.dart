@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
+import 'package:octo_search/core/helpers/github_error_handler.dart';
 import 'package:octo_search/core/widgets/infinite_scroll_list.dart';
 import 'package:octo_search/core/widgets/scroll_top_floating_button.dart';
 import 'package:octo_search/data/api/github_api_service.dart';
@@ -52,13 +53,18 @@ class _UserSearchScreenState extends State<UserSearchScreen> {
       return [];
     }
 
-    final result = await GitHubApiService.getUsers(
-      query,
-      page: page,
-      perPage: _pageSize,
-    );
+    return GitHubErrorHandler.handleApiError(
+      context: context,
+      apiCall: () async {
+        final result = await GitHubApiService.getUsers(
+          query,
+          page: page,
+          perPage: _pageSize,
+        );
 
-    return result.items;
+        return result.items;
+      },
+    );
   }
 
   @override

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:octo_search/core/helpers/github_error_handler.dart';
 import 'package:octo_search/core/helpers/url_launcher.dart';
 import 'package:octo_search/core/widgets/error_message.dart';
 import 'package:octo_search/core/widgets/loading.dart';
@@ -45,23 +46,28 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
   }
 
   Future<void> _getUserProfile() async {
-    setState(() {
-      _isLoading = true;
-      _errorMessage = null;
-    });
+    GitHubErrorHandler.handleApiError(
+      context: context,
+      apiCall: () async {
+        setState(() {
+          _isLoading = true;
+          _errorMessage = null;
+        });
 
-    try {
-      final result = await GitHubApiService.getUserProfile(widget.username);
-      setState(() {
-        _user = result;
-        _isLoading = false;
-      });
-    } catch (error) {
-      setState(() {
-        _errorMessage = "Failed to load user:\n$error";
-        _isLoading = false;
-      });
-    }
+        final result = await GitHubApiService.getUserProfile(widget.username);
+
+        setState(() {
+          _user = result;
+          _isLoading = false;
+        });
+      },
+      onError: () {
+        setState(() {
+          _errorMessage = "Failed to load user: ${widget.username}";
+          _isLoading = false;
+        });
+      },
+    );
   }
 
   @override

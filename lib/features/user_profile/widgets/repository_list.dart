@@ -3,6 +3,7 @@ import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:intl/intl.dart';
 import 'package:octo_search/core/enums/repository_filters.dart';
 import 'package:octo_search/core/helpers/get_language_color.dart';
+import 'package:octo_search/core/helpers/github_error_handler.dart';
 import 'package:octo_search/core/helpers/url_launcher.dart';
 import 'package:octo_search/core/widgets/container_chip.dart';
 import 'package:octo_search/core/widgets/expressive_list_tile.dart';
@@ -51,20 +52,19 @@ class _RepositoryListState extends State<RepositoryList> {
   );
 
   Future<List<RepositoryItem>> _getRepositories(int page) async {
-    final result = await GitHubApiService.getRepositories(
-      widget.username,
-      filter: _selectedFilter,
-      page: page,
-      perPage: _pageSize,
+    return GitHubErrorHandler.handleApiError(
+      context: context,
+      apiCall: () async {
+        final result = await GitHubApiService.getRepositories(
+          widget.username,
+          filter: _selectedFilter,
+          page: page,
+          perPage: _pageSize,
+        );
+
+        return result.items;
+      },
     );
-
-    if (_repoCount == null) {
-      setState(() {
-        _repoCount = result.totalCount;
-      });
-    }
-
-    return result.items;
   }
 
   void _openLink(String url) {
