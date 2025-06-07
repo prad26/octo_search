@@ -33,6 +33,7 @@ class _UserSearchScreenState extends State<UserSearchScreen> {
   final TextEditingController _searchTextController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
   static const _pageSize = GitHubApiService.defaultPerPage;
+  bool _hasSearched = false;
 
   late final PagingController<int, UserSearchItem> _pagingController = PagingController(
     getNextPageKey: (state) {
@@ -54,6 +55,10 @@ class _UserSearchScreenState extends State<UserSearchScreen> {
       return [];
     }
 
+    setState(() {
+      _hasSearched = true;
+    });
+
     return GitHubErrorHandler.handleApiError(
       context: context,
       apiCall: () async {
@@ -66,6 +71,13 @@ class _UserSearchScreenState extends State<UserSearchScreen> {
         return result.items;
       },
     );
+  }
+
+  void _onClearSearch() {
+    _pagingController.refresh();
+    setState(() {
+      _hasSearched = false;
+    });
   }
 
   @override
@@ -98,7 +110,7 @@ class _UserSearchScreenState extends State<UserSearchScreen> {
                 hintText: 'Search GitHub Users',
                 controller: _searchTextController,
                 onSubmitted: (_) => _pagingController.refresh(),
-                onClear: () => _pagingController.refresh(),
+                onClear: _onClearSearch,
               ),
               Expanded(
                 child: _buildUserList(),
@@ -116,12 +128,12 @@ class _UserSearchScreenState extends State<UserSearchScreen> {
       controller: _pagingController,
       scrollController: _scrollController,
       fetchPage: _getUsers,
-      noItemsFoundIndicatorBuilder: (context) {
-        return NoData(
-          message: 'Search for users by name, username...',
-          icon: Icons.search_rounded,
-        );
-      },
+      noItemsFoundIndicatorBuilder: _hasSearched
+          ? null
+          : (context) => NoData(
+              message: 'Search for users by name, username...',
+              icon: Icons.search_rounded,
+            ),
       itemBuilder: (context, index, user, itemsLength) {
         return ExpressiveListTile(
           isFirst: index == 0,
