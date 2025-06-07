@@ -2,15 +2,14 @@ import 'dart:convert';
 
 import 'package:http/http.dart' as http;
 import 'package:octo_search/data/models/user_search.dart';
+import 'package:octo_search/data/models/user_profile.dart';
 
 // TODO: custom exceptions.
 
 /// Service class for making requests to the GitHub API.
 ///
-/// For more information, see:
-/// https://docs.github.com/en/rest
+/// For more information, see: https://docs.github.com/en/rest
 class GitHubApiService {
-  static const String baseUrl = 'https://api.github.com';
   static const int defaultPerPage = 30;
 
   /// A common method to fetch data from the GitHub API.
@@ -19,9 +18,9 @@ class GitHubApiService {
   /// [queryParams] - Optional query parameters to include in the request.
   static Future<Map<String, dynamic>> _fetchFromApi(String path, {Map<String, dynamic>? queryParams}) async {
     const String authority = 'api.github.com';
-    final uri = Uri.https(authority, path, queryParams);
 
     try {
+      final uri = Uri.https(authority, path, queryParams);
       final response = await http.get(
         uri,
         headers: {
@@ -44,10 +43,7 @@ class GitHubApiService {
   ///
   /// Returns a [UserSearch] object containing the search results.
   ///
-  /// Example:
-  /// ```dart
-  /// final results = await GitHubApiService.searchUsers('github');
-  /// ```
+  /// For more information, see: https://docs.github.com/en/rest/search/search#search-users
   static Future<UserSearch> searchUsers(
     String query, {
     int page = 1,
@@ -64,6 +60,21 @@ class GitHubApiService {
       return UserSearch.fromJson(response);
     } catch (e) {
       throw Exception('Error parsing user search response: $e');
+    }
+  }
+
+  /// Retrieves detailed profile information for a specific GitHub user.
+  ///
+  /// Returns a [UserProfile] object containing the user's details.
+  /// 
+  /// For more information, see: https://docs.github.com/en/rest/users/users#get-a-user
+  static Future<UserProfile> getUserProfile(String username) async {
+    final response = await _fetchFromApi('/users/$username');
+
+    try {
+      return UserProfile.fromJson(response);
+    } catch (e) {
+      throw Exception('Error parsing user profile response: $e');
     }
   }
 }

@@ -1,13 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:octo_search/core/widgets/error_message.dart';
+import 'package:octo_search/core/widgets/loading.dart';
+import 'package:octo_search/core/widgets/no_data.dart';
 import 'package:octo_search/data/api/github_api_service.dart';
 import 'package:octo_search/data/models/user_search.dart';
 import 'package:octo_search/core/widgets/expressive_list_tile.dart';
 import 'package:octo_search/core/widgets/search_input.dart';
+import 'package:octo_search/features/user_profile/screen/user_profile.dart';
 
 /// Screen for searching GitHub users.
 ///
 /// This screen provides a search interface that allows users to query
-/// GitHub's user database and displays search results in a list. 
+/// GitHub's user database and displays search results in a list.
 /// Each result shows their name, account type with their avatar.
 ///
 /// The screen handles different states:
@@ -106,76 +110,27 @@ class _UserSearchScreenState extends State<UserSearchScreen> {
 
   Widget _buildContent() {
     if (_isLoading) {
-      return const Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          spacing: 16,
-          children: [
-            CircularProgressIndicator(),
-            Text('Searching for users...'),
-          ],
-        ),
+      return Loading(
+        message: 'Searching for users...',
       );
     }
 
     if (_errorMessage != null) {
-      return Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          spacing: 16,
-          children: [
-            const Icon(
-              Icons.error_outline,
-              size: 48,
-              color: Colors.red,
-            ),
-            Text(
-              _errorMessage!,
-              textAlign: TextAlign.center,
-            ),
-            ElevatedButton.icon(
-              icon: const Icon(Icons.refresh_rounded),
-              label: const Text('Try Again'),
-              onPressed: _fetchUsers,
-            ),
-          ],
-        ),
+      return ErrorMessage(
+        message: _errorMessage!,
+        onRetry: _fetchUsers,
       );
     }
 
     if (_users.isEmpty) {
       if (_hasSearched) {
         // Empty search results
-        return const Center(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            spacing: 16,
-            children: [
-              Icon(
-                Icons.person_off_outlined,
-                size: 64,
-              ),
-              Text('No users found matching your search'),
-            ],
-          ),
-        );
+        return NoData(message: 'No users found matching your search');
       } else {
         // Initial state - no search performed yet
-        return const Center(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            spacing: 16,
-            children: [
-              Icon(
-                Icons.search,
-                size: 64,
-              ),
-              Text(
-                'Enter a name to search for users',
-                textAlign: TextAlign.center,
-              ),
-            ],
-          ),
+        return NoData(
+          message: 'Enter a name to search for users',
+          icon: Icons.search,
         );
       }
     }
@@ -203,7 +158,13 @@ class _UserSearchScreenState extends State<UserSearchScreen> {
           title: Text(user.login),
           subtitle: Text(user.type),
           onTap: () {
-            print('Tapped on user: ${user.login}');
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (context) => UserProfileScreen(
+                  username: user.login,
+                ),
+              ),
+            );
           },
         );
       },
