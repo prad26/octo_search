@@ -52,6 +52,10 @@ class _UserSearchScreenState extends State<UserSearchScreen> {
   Future<List<UserSearchItem>> _getUsers(int page) async {
     final query = _searchTextController.text.trim();
     if (query.isEmpty) {
+      setState(() {
+        _hasSearched = false;
+      });
+
       return [];
     }
 
