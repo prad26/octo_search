@@ -8,7 +8,7 @@ part 'github_api_exception.freezed.dart';
 /// Use the [GitHubException.from] factory to create an appropriate exception instance
 /// based on HTTP status codes and response bodies.
 @freezed
-abstract class GitHubException with _$GitHubException {
+sealed class GitHubException with _$GitHubException {
   const GitHubException._();
 
   /// Creates a [GitHubException] based on the HTTP status code and response body.
@@ -56,7 +56,6 @@ abstract class GitHubException with _$GitHubException {
       GitHubRateLimitExceeded() => 'Rate limit exceeded.',
       GitHubGenericException() => 'An unexpected error occurred. Please try again later.',
       GitHubParsingException() => 'Error parsing the response from the server.',
-      _ => 'An unknown error occurred.',
     };
   }
 

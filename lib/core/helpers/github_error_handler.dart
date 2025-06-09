@@ -14,20 +14,27 @@ class GitHubErrorHandler {
     try {
       return await apiCall();
     } catch (e) {
-      if (e is! GitHubUnauthorizedException && e is! GitHubForbiddenException && e is! GitHubRateLimitExceeded) {
-        if (onError != null) {
-          onError();
-        }
+      switch (e) {
+        case GitHubUnauthorizedException():
+        case GitHubForbiddenException():
+        case GitHubRateLimitExceeded():
+          // If e is one of these specific GitHub exceptions, proceed to show the access token dialog.
+          final tokenAdded = await _showAccessTokenDialog(context);
+          if (tokenAdded) {
+            return await apiCall(); // Retry.
+          } else {
+            // If the dialog was dismissed or failed, throw a generic exception or rethrow e.
+            throw GitHubGenericException();
+          }
 
-        rethrow;
-      }
+        default:
+          // For all other types of exceptions (including other GitHubException subtypes or non-GitHub exceptions),
+          // call the onError callback if provided, and then rethrow the original exception.
+          if (onError != null) {
+            onError();
+          }
 
-      final tokenAdded = await _showAccessTokenDialog(context);
-
-      if (tokenAdded) {
-        return await apiCall();
-      } else {
-        throw GitHubGenericException();
+          rethrow;
       }
     }
   }
