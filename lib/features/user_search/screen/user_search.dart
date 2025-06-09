@@ -5,6 +5,7 @@ import 'package:octo_search/core/helpers/github_error_handler.dart';
 import 'package:octo_search/core/widgets/infinite_scroll_list.dart';
 import 'package:octo_search/core/widgets/no_data.dart';
 import 'package:octo_search/core/widgets/scroll_top_floating_button.dart';
+import 'package:octo_search/core/widgets/user_avatar.dart';
 import 'package:octo_search/data/api/github_api_service.dart';
 import 'package:octo_search/data/models/user_search.dart';
 import 'package:octo_search/core/widgets/expressive_list_tile.dart';
@@ -163,9 +164,8 @@ class _UserSearchScreenState extends State<UserSearchScreen> {
             horizontal: 16,
             vertical: 4,
           ),
-          leading: CircleAvatar(
-            backgroundColor: Colors.transparent,
-            backgroundImage: NetworkImage(user.avatarUrl),
+          leading: UserAvatar(
+            url: user.avatarUrl,
           ),
           title: Text(user.login),
           subtitle: Text(user.type),

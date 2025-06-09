@@ -6,6 +6,7 @@ import 'package:octo_search/core/widgets/error_message.dart';
 import 'package:octo_search/core/widgets/loading.dart';
 import 'package:octo_search/core/widgets/no_data.dart';
 import 'package:octo_search/core/widgets/scroll_top_floating_button.dart';
+import 'package:octo_search/core/widgets/user_avatar.dart';
 import 'package:octo_search/data/api/github_api_service.dart';
 import 'package:octo_search/data/models/user_profile.dart';
 import 'package:octo_search/features/user_profile/widgets/repository_list.dart';
@@ -138,10 +139,9 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
       child: Row(
         spacing: 16,
         children: [
-          CircleAvatar(
-            radius: 44,
-            backgroundColor: Colors.transparent,
-            backgroundImage: NetworkImage(profile.avatarUrl),
+          UserAvatar(
+            size: 72,
+            url: profile.avatarUrl,
           ),
           Expanded(
             child: Column(
