@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
+import 'package:octo_search/core/helpers/debouncer.dart';
 import 'package:octo_search/core/helpers/github_error_handler.dart';
 import 'package:octo_search/core/widgets/infinite_scroll_list.dart';
 import 'package:octo_search/core/widgets/no_data.dart';
@@ -34,6 +35,7 @@ class _UserSearchScreenState extends State<UserSearchScreen> {
   final ScrollController _scrollController = ScrollController();
   static const _pageSize = GitHubApiService.defaultPerPage;
   bool _hasSearched = false;
+  final Debouncer _debouncer = Debouncer(milliseconds: 300);
 
   late final PagingController<int, UserSearchItem> _pagingController = PagingController(
     getNextPageKey: (state) {
@@ -85,10 +87,25 @@ class _UserSearchScreenState extends State<UserSearchScreen> {
   }
 
   @override
+  void initState() {
+    super.initState();
+    _searchTextController.addListener(() {
+      _debouncer.run(() {
+        if (_searchTextController.text.isNotEmpty) {
+          _pagingController.refresh();
+        } else {
+          _onClearSearch();
+        }
+      });
+    });
+  }
+
+  @override
   void dispose() {
     _searchTextController.dispose();
     _pagingController.dispose();
     _scrollController.dispose();
+    _debouncer.dispose();
     super.dispose();
   }
 
