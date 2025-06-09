@@ -62,6 +62,10 @@ class _RepositoryListState extends State<RepositoryList> {
           perPage: _pageSize,
         );
 
+        setState(() {
+          _repoCount = result.totalCount;
+        });
+
         return result.items;
       },
     );
