@@ -1,29 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:octo_search/core/helpers/debouncer.dart';
-import 'package:octo_search/core/helpers/github_error_handler.dart';
-import 'package:octo_search/core/widgets/infinite_scroll_list.dart';
-import 'package:octo_search/core/widgets/no_data.dart';
-import 'package:octo_search/core/widgets/scroll_top_floating_button.dart';
-import 'package:octo_search/core/widgets/user_avatar.dart';
-import 'package:octo_search/data/api/github_api_service.dart';
+import 'package:octo_search/core/widgets/index.dart';
+import 'package:octo_search/data/api/index.dart';
 import 'package:octo_search/data/models/user_search.dart';
-import 'package:octo_search/core/widgets/expressive_list_tile.dart';
-import 'package:octo_search/core/widgets/search_input.dart';
 import 'package:octo_search/features/user_profile/screen/user_profile.dart';
 
-/// Screen for searching GitHub users.
+/// A screen for searching GitHub users.
 ///
-/// This screen provides a search interface that allows users to query
-/// GitHub's user database and displays search results in a list.
-/// Each result shows their name, account type with their avatar.
+/// This screen provides a search input field to query GitHub's user database.
+/// Search results are displayed in a paginated list, showing each user's avatar,
+/// login name, and account type. Tapping a user navigates to their profile screen.
 ///
-/// The screen handles different states:
-/// - Initial empty state
-/// - Loading state while fetching results
-/// - Error state if the search fails
-/// - Empty results state when no users match the query
-/// - Results list when users are found
+/// The screen handles various states:
+/// - Initial state: Prompts the user to start searching.
+/// - Loading state: While fetching search results.
+/// - Error state: If the search API call fails.
+/// - Empty results state: When no users match the search query.
+/// - Results list: When users are found.
 class UserSearchScreen extends StatefulWidget {
   const UserSearchScreen({super.key});
 
@@ -32,12 +26,26 @@ class UserSearchScreen extends StatefulWidget {
 }
 
 class _UserSearchScreenState extends State<UserSearchScreen> {
+  /// Controls the text input for the search query.
   final TextEditingController _searchTextController = TextEditingController();
+
+  /// The [ScrollController] for the list of search results, used by the
+  /// [ScrollTopFloatingButton] and the [InfiniteScrollList].
   final ScrollController _scrollController = ScrollController();
+
+  /// The number of users to fetch per page.
   static const _pageSize = GitHubApiService.defaultPerPage;
+
+  /// A flag indicating whether a search has been performed at least once.
+  /// Used to differentiate between the initial empty state and an empty search result.
   bool _hasSearched = false;
+
+  /// A [Debouncer] to delay API calls while the user is typing in the search field.
   final Debouncer _debouncer = Debouncer(milliseconds: 300);
 
+  /// The controller for managing pagination of user search results.
+  ///
+  /// It defines how to get the next page key and how to fetch a page of users.
   late final PagingController<int, UserSearchItem> _pagingController = PagingController(
     getNextPageKey: (state) {
       final lastPage = state.pages?.lastOrNull;
@@ -52,6 +60,14 @@ class _UserSearchScreenState extends State<UserSearchScreen> {
     fetchPage: (pageKey) => _getUsers(pageKey),
   );
 
+  /// Fetches a page of users from the GitHub API based on the current search query.
+  ///
+  /// If the search query is empty, it resets the [_hasSearched] flag and returns
+  /// an empty list. Otherwise, it sets [_hasSearched] to true and makes the API call
+  /// using [GitHubErrorHandler.handleApiError] for error management.
+  ///
+  /// [page] The page number to fetch.
+  /// Returns a [List<UserSearchItem>] for the current page.
   Future<List<UserSearchItem>> _getUsers(int page) async {
     final query = _searchTextController.text.trim();
     if (query.isEmpty) {
@@ -80,27 +96,21 @@ class _UserSearchScreenState extends State<UserSearchScreen> {
     );
   }
 
-  void _onClearSearch() {
-    _pagingController.refresh();
-    setState(() {
-      _hasSearched = false;
-    });
-  }
-
+  /// Initializes the state. Called when this widget is inserted into the tree.
+  ///
+  /// Sets up a listener on the [_searchTextController] to trigger a debounced
+  /// search when the text changes.
   @override
   void initState() {
     super.initState();
     _searchTextController.addListener(() {
-      _debouncer.run(() {
-        if (_searchTextController.text.isNotEmpty) {
-          _pagingController.refresh();
-        } else {
-          _onClearSearch();
-        }
-      });
+      _debouncer.run(_pagingController.refresh);
     });
   }
 
+  /// Disposes the state and cleans up controllers and the debouncer.
+  ///
+  /// Called when this widget is removed from the tree.
   @override
   void dispose() {
     _searchTextController.dispose();
@@ -114,7 +124,7 @@ class _UserSearchScreenState extends State<UserSearchScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        backgroundColor: Theme.of(context).colorScheme.primaryContainer,
         title: const Text('OctoSearch'),
       ),
       floatingActionButton: ScrollTopFloatingButton(controller: _scrollController),
@@ -132,7 +142,7 @@ class _UserSearchScreenState extends State<UserSearchScreen> {
                 hintText: 'Search GitHub Users',
                 controller: _searchTextController,
                 onSubmitted: (_) => _pagingController.refresh(),
-                onClear: _onClearSearch,
+                onClear: _pagingController.refresh,
               ),
               Expanded(
                 child: _buildUserList(),
@@ -144,6 +154,13 @@ class _UserSearchScreenState extends State<UserSearchScreen> {
     );
   }
 
+  /// Builds the infinitely scrolling list of user search results.
+  ///
+  /// Uses the [InfiniteScrollList] widget, providing it with the [_pagingController],
+  /// [_scrollController], [_getUsers] fetch function, and an itemBuilder
+  /// to render each [UserSearchItem] using an [ExpressiveListTile].
+  /// It also provides a custom `noItemsFoundIndicatorBuilder` to show a
+  /// different message based on whether a search has been performed.
   Widget _buildUserList() {
     return InfiniteScrollList(
       itemName: 'users',

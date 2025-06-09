@@ -1,29 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:octo_search/core/helpers/github_error_handler.dart';
-import 'package:octo_search/core/helpers/url_launcher.dart';
-import 'package:octo_search/core/widgets/error_message.dart';
-import 'package:octo_search/core/widgets/loading.dart';
-import 'package:octo_search/core/widgets/no_data.dart';
-import 'package:octo_search/core/widgets/scroll_top_floating_button.dart';
-import 'package:octo_search/core/widgets/user_avatar.dart';
-import 'package:octo_search/data/api/github_api_service.dart';
+import 'package:octo_search/core/helpers/index.dart';
+import 'package:octo_search/core/widgets/index.dart';
+import 'package:octo_search/data/api/index.dart';
 import 'package:octo_search/data/models/user_profile.dart';
 import 'package:octo_search/features/user_profile/widgets/repository_list.dart';
 
-/// Screen to display detailed profile information for a GitHub user.
+/// A screen that displays detailed profile information for a GitHub user.
 ///
-/// This screen fetches and displays comprehensive information about a GitHub user,
-/// including their profile details, statistics, and contact information.
+/// This screen fetches and shows comprehensive details about a GitHub user,
+/// including their avatar, name, bio, follower/following counts, location,
+/// company, blog, email, and join date. It also includes a list of their repositories.
 ///
-/// It handles different states:
-/// - Loading state while fetching the profile
-/// - Error state if the fetch fails
-/// - Profile display once data is loaded
-///
-/// The screen also provides interactive elements like clickable links
-/// for the user's website, location, company, etc.
+/// The screen handles loading and error states during the API call.
+/// Interactive elements allow opening links for the user's website, location, company, etc.
 class UserProfileScreen extends StatefulWidget {
+  /// The GitHub username of the profile to display.
   final String username;
 
   const UserProfileScreen({
@@ -36,16 +28,32 @@ class UserProfileScreen extends StatefulWidget {
 }
 
 class _UserProfileScreenState extends State<UserProfileScreen> {
+  /// Indicates whether the user profile data is currently being loaded.
   bool _isLoading = true;
+
+  /// The fetched [UserProfile] data. Null if not yet loaded or if an error occurred.
   UserProfile? _user;
+
+  /// An error message string to display if fetching the profile fails. Null otherwise.
   String? _errorMessage;
+
+  /// A [NumberFormat] instance for formatting numbers (e.g., follower counts).
   final NumberFormat _numberFormat = NumberFormat.decimalPattern();
+
+  /// The [ScrollController] for the main scrollable view, used by the [ScrollTopFloatingButton].
   final ScrollController _scrollController = ScrollController();
 
+  /// Opens the given [url] in an external browser or app.
+  ///
+  /// Uses the [openLink] utility function.
   void _openLink(String url) {
     openLink(context, url);
   }
 
+  /// Fetches the user profile data from the GitHub API.
+  ///
+  /// Uses [GitHubErrorHandler.handleApiError] to manage API calls and errors.
+  /// Updates [_isLoading], [_user], and [_errorMessage] based on the API response.
   Future<void> _getUserProfile() async {
     GitHubErrorHandler.handleApiError(
       context: context,
@@ -64,13 +72,16 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
       },
       onError: () {
         setState(() {
-          _errorMessage = "Failed to load user: ${widget.username}";
+          _errorMessage = 'Failed to load user: ${widget.username}';
           _isLoading = false;
         });
       },
     );
   }
 
+  /// Initializes the state. Called when this widget is inserted into the tree.
+  ///
+  /// Triggers the initial fetch of the user profile data.
   @override
   void initState() {
     super.initState();
@@ -81,7 +92,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        backgroundColor: Theme.of(context).colorScheme.primaryContainer,
         title: Text('OctoSearch: ${widget.username}'),
       ),
       floatingActionButton: ScrollTopFloatingButton(controller: _scrollController),
@@ -94,6 +105,12 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
     );
   }
 
+  /// Builds the main content of the screen based on the current state.
+  ///
+  /// Returns a [Loading] widget if [_isLoading] is true.
+  /// Returns an [ErrorMessage] widget if [_errorMessage] is not null.
+  /// Returns a [NoData] widget if [_user] is null after loading (and no error).
+  /// Otherwise, returns a [Column] containing the user's profile header, detailed info, and their repository list.
   Widget _buildContent() {
     if (_isLoading) {
       return Loading(
@@ -130,6 +147,10 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
     );
   }
 
+  /// Builds the header section of the user profile.
+  ///
+  /// Displays the user's avatar, name (or login), login handle, and bio.
+  /// The header is tappable and opens the user's GitHub profile URL.
   Widget _buildHeader() {
     final profile = _user!;
 
@@ -177,6 +198,11 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
     );
   }
 
+  /// Builds the informational section of the user profile.
+  ///
+  /// Displays details like follower/following counts, location, join date,
+  /// company, blog link, and email, each with an appropriate icon.
+  /// Some items are tappable to open relevant links.
   Widget _buildInfo() {
     final profile = _user!;
 
@@ -227,6 +253,15 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
     );
   }
 
+  /// Builds a single row of information for the [_buildInfo] section.
+  ///
+  /// Each row consists of an [icon] and a [value] (text).
+  /// If [value] is null or empty, an empty [SizedBox] is returned.
+  /// If an [onTap] callback is provided, the row becomes tappable.
+  ///
+  /// [icon] The [IconData] to display.
+  /// [value] The string value to display. Can be null.
+  /// [onTap] An optional callback when the row is tapped, receiving the [value].
   Widget _buildInfoRow({required IconData icon, String? value, ValueChanged<String>? onTap}) {
     if (value == null || value.isEmpty) {
       return SizedBox.shrink();

@@ -2,9 +2,14 @@ import 'package:flutter/material.dart';
 
 /// A reusable widget for displaying error messages.
 ///
-/// This widget shows an error icon, a message, and an optional retry button.
+/// This widget shows an error icon, a [message], and an optional retry button
+/// if an [onRetry] callback is provided.
 class ErrorMessage extends StatelessWidget {
+  /// The error message to display.
   final String message;
+
+  /// An optional callback that is invoked when the retry button is pressed.
+  /// If null, the retry button is not shown.
   final VoidCallback? onRetry;
 
   const ErrorMessage({

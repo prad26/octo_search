@@ -1,16 +1,21 @@
 import 'package:flutter/material.dart';
 
-/// A reusable widget for displaying empty state messages.
+/// A reusable widget for displaying a message when no data is available.
 ///
-/// This widget shows an icon and a message to indicate that no data is available.
+/// This widget shows an [icon] and a [message] to inform the user about
+/// an empty state, for example, when a search yields no results.
 class NoData extends StatelessWidget {
+  /// The message to display, indicating why no data is shown.
   final String message;
-  final IconData? icon;
+
+  /// The optional icon to display above the message.
+  /// If null, [Icons.person_off_outlined] is used by default.
+  final IconData icon;
 
   const NoData({
     super.key,
     required this.message,
-    this.icon,
+    this.icon = Icons.person_off_outlined,
   });
 
   @override
@@ -21,7 +26,7 @@ class NoData extends StatelessWidget {
         spacing: 16,
         children: [
           Icon(
-            icon ?? Icons.person_off_outlined,
+            icon,
             size: 64,
           ),
           Text(

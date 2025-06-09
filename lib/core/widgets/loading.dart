@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 
 /// A reusable loading indicator widget.
 ///
-/// This widget displays a centered loading spinner with an optional message.
+/// This widget displays a centered [CircularProgressIndicator] with an optional [message] displayed below it.
 class Loading extends StatelessWidget {
+  /// An optional message to display below the loading spinner.
   final String? message;
 
   const Loading({

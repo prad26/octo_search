@@ -5,9 +5,18 @@ import 'package:flutter/material.dart';
 /// This widget displays a colored container with an optional icon and text label.
 /// It's designed to represent tags, categories, or status indicators.
 class ContainerChip extends StatelessWidget {
+  /// The optional icon to display before the label.
   final IconData? icon;
+
+  /// The text label to display in the chip.
   final String label;
+
+  /// The optional [TextStyle] for the label.
+  /// If null, a default style is used.
   final TextStyle? labelStyle;
+
+  /// The base color for the chip's background and icon (if present).
+  /// The background will be a semi-transparent version of this color.
   final Color color;
 
   const ContainerChip({

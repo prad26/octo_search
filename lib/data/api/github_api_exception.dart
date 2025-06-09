@@ -15,6 +15,10 @@ sealed class GitHubException with _$GitHubException {
   ///
   /// This factory attempts to map common HTTP error codes to specific
   /// [GitHubException] subtypes.
+  ///
+  /// [statusCode] The HTTP status code from the API response.
+  /// [responseBody] The body of the HTTP response, used for more specific
+  /// error detection (e.g., distinguishing rate limit errors within a 403 status).
   factory GitHubException.from({
     int? statusCode,
     String? responseBody,
@@ -36,13 +40,28 @@ sealed class GitHubException with _$GitHubException {
     }
   }
 
+  /// Represents an error due to unauthorized access (HTTP 401).
   const factory GitHubException.unauthorized() = GitHubUnauthorizedException;
+
+  /// Represents an error due to forbidden access (HTTP 403), not related to rate limits.
   const factory GitHubException.forbidden() = GitHubForbiddenException;
+
+  /// Represents an error when a resource is not found (HTTP 404).
   const factory GitHubException.notFound() = GitHubNotFoundException;
+
+  /// Represents a validation error, often associated with unprocessable entity (HTTP 422).
   const factory GitHubException.validation() = GitHubValidationException;
+
+  /// Represents a server-side error on GitHub's end (HTTP 5xx).
   const factory GitHubException.server() = GitHubServerException;
+
+  /// Represents an error due to exceeding the API rate limit (HTTP 403 with specific body content).
   const factory GitHubException.rateLimitExceeded() = GitHubRateLimitExceeded;
+
+  /// Represents a generic or unexpected error not covered by other specific types.
   const factory GitHubException.generic() = GitHubGenericException;
+
+  /// Represents an error that occurred while parsing the API response.
   const factory GitHubException.parsing() = GitHubParsingException;
 
   /// Provides a user-friendly error message for each exception type.

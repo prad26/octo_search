@@ -1,5 +1,10 @@
 import 'package:flutter/material.dart';
 
+/// Returns a [Color] associated with a given programming [language].
+///
+/// The function takes a [language] string (case-insensitive) and returns a
+/// predefined [Color]. If the [language] is not recognized or is null,
+/// it defaults to [Colors.blue].
 Color getColorForLanguage(String? language) {
   switch (language?.toLowerCase()) {
     case 'javascript':

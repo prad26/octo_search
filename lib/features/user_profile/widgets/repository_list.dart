@@ -2,23 +2,25 @@ import 'package:flutter/material.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:intl/intl.dart';
 import 'package:octo_search/core/enums/repository_filters.dart';
-import 'package:octo_search/core/helpers/get_language_color.dart';
-import 'package:octo_search/core/helpers/github_error_handler.dart';
-import 'package:octo_search/core/helpers/url_launcher.dart';
-import 'package:octo_search/core/widgets/container_chip.dart';
-import 'package:octo_search/core/widgets/expressive_list_tile.dart';
-import 'package:octo_search/core/widgets/infinite_scroll_list.dart';
-import 'package:octo_search/data/api/github_api_service.dart';
+import 'package:octo_search/core/helpers/index.dart';
+import 'package:octo_search/core/widgets/index.dart';
+import 'package:octo_search/data/api/index.dart';
 import 'package:octo_search/data/models/repository_search.dart';
 
-/// A widget that displays a filterable list of repositories for a GitHub user.
+/// A widget that displays a filterable, paginated list of repositories for a GitHub user.
 ///
-/// This widget shows a list of repositories owned by the specified user,
-/// with options to filter by repository type (all, non-forked, forked).
-/// It handles loading, error, and empty states appropriately.
+/// This widget fetches and shows a list of repositories owned by the specified [username].
+/// It includes a filter dropdown to switch between viewing all, non-forked, or forked repositories.
+/// The list supports infinite scrolling and handles loading, error, and empty states.
 class RepositoryList extends StatefulWidget {
+  /// The GitHub username whose repositories are to be displayed.
   final String username;
+
+  /// A [NumberFormat] instance for formatting numbers (e.g., repository counts, stars).
   final NumberFormat numberFormat;
+
+  /// The [ScrollController] to be used by the underlying [InfiniteScrollList]
+  /// and potentially by a [ScrollTopFloatingButton] in the parent screen.
   final ScrollController scrollController;
 
   const RepositoryList({
@@ -33,10 +35,20 @@ class RepositoryList extends StatefulWidget {
 }
 
 class _RepositoryListState extends State<RepositoryList> {
+  /// The currently selected filter for displaying repositories.
+  /// Defaults to [RepositoryFilters.nonForked].
   RepositoryFilters _selectedFilter = RepositoryFilters.nonForked;
+
+  /// The total count of repositories matching the current filter.
+  /// Null until the first page of data is fetched.
   int? _repoCount;
+
+  /// The number of repositories to fetch per page.
   static const _pageSize = GitHubApiService.defaultPerPage;
 
+  /// The controller for managing pagination of repository items.
+  ///
+  /// It defines how to get the next page key and how to fetch a page of repositories.
   late final PagingController<int, RepositoryItem> _pagingController = PagingController(
     getNextPageKey: (state) {
       final lastPage = state.pages?.lastOrNull;
@@ -51,6 +63,12 @@ class _RepositoryListState extends State<RepositoryList> {
     fetchPage: (pageKey) => _getRepositories(pageKey),
   );
 
+  /// Fetches a page of repositories from the GitHub API based on the current
+  /// [widget.username], [_selectedFilter], and the given [page] number.
+  ///
+  /// Uses [GitHubErrorHandler.handleApiError] for error management.
+  /// Updates [_repoCount] with the total count from the API response.
+  /// Returns a [List<RepositoryItem>] for the current page.
   Future<List<RepositoryItem>> _getRepositories(int page) async {
     return GitHubErrorHandler.handleApiError(
       context: context,
@@ -71,10 +89,18 @@ class _RepositoryListState extends State<RepositoryList> {
     );
   }
 
+  /// Opens the given [url] in an external browser or app.
+  ///
+  /// Uses the [openLink] utility function from core helpers.
   void _openLink(String url) {
     openLink(context, url);
   }
 
+  /// Updates the repository filter and refreshes the list.
+  ///
+  /// If the new [filter] is the same as the current [_selectedFilter], no action is taken.
+  /// Otherwise, updates [_selectedFilter], resets [_repoCount], and calls
+  /// `refresh()` on the [_pagingController] to load data with the new filter.
   void _updateFilter(RepositoryFilters filter) {
     if (_selectedFilter == filter) return;
 
@@ -84,6 +110,12 @@ class _RepositoryListState extends State<RepositoryList> {
     });
 
     _pagingController.refresh();
+  }
+
+  @override
+  void dispose() {
+    _pagingController.dispose();
+    super.dispose();
   }
 
   @override
@@ -100,6 +132,10 @@ class _RepositoryListState extends State<RepositoryList> {
     );
   }
 
+  /// Builds the header section for the repository list.
+  ///
+  /// Displays the title "Repositories", a [Badge] with the total count ([_repoCount]),
+  /// and a [MenuAnchor] button to select the repository filter.
   Widget _buildHeader() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -160,6 +196,11 @@ class _RepositoryListState extends State<RepositoryList> {
     );
   }
 
+  /// Builds the infinitely scrolling list of repositories.
+  ///
+  /// Uses the [InfiniteScrollList] widget, providing it with the [_pagingController],
+  /// [widget.scrollController], [_getRepositories] fetch function, and an itemBuilder
+  /// to render each [RepositoryItem] using an [ExpressiveListTile].
   Widget _buildRepoList() {
     return InfiniteScrollList(
       itemName: 'repositories',
@@ -213,6 +254,13 @@ class _RepositoryListState extends State<RepositoryList> {
     );
   }
 
+  /// Builds a [Row] displaying statistics for a single repository.
+  ///
+  /// Includes star count, fork count, open issues count, and the primary language
+  /// with a colored chip.
+  ///
+  /// [repo] The [RepositoryItem] data for which to display stats.
+  /// [languageColor] The color associated with the repository's primary language.
   Row _buildRepoStats(RepositoryItem repo, Color languageColor) {
     return Row(
       children: [

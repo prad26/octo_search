@@ -1,6 +1,14 @@
 import 'package:flutter/material.dart';
 
-/// Shows an error message in a snack bar with optional retry action.
+/// Displays a [SnackBar] with an error message and an optional retry action.
+///
+/// The [SnackBar] is styled with the error colors from the current theme.
+/// If an [onRetry] callback is provided, a "Retry" button will be shown.
+///
+/// [context] is the [BuildContext] used to show the [SnackBar].
+/// [message] is the error message to display.
+/// [onRetry] is an optional [VoidCallback] that is executed when the "Retry"
+/// button is pressed.
 void showErrorSnackBar({
   required BuildContext context,
   required String message,
@@ -10,7 +18,7 @@ void showErrorSnackBar({
 
   final colorScheme = Theme.of(context).colorScheme;
   final messenger = ScaffoldMessenger.of(context);
-  
+
   // Hide any existing snack bars to prevent queuing
   messenger.hideCurrentSnackBar();
 

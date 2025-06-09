@@ -388,7 +388,7 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: master
+      ref: "4f651579668a0ec9e5358a45a640c49e865f8673"
       resolved-ref: "4f651579668a0ec9e5358a45a640c49e865f8673"
       url: "https://github.com/EdsonBueno/infinite_scroll_pagination.git"
     source: git

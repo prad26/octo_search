@@ -3,36 +3,58 @@ import 'dart:convert';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
 import 'package:octo_search/core/enums/repository_filters.dart';
-import 'package:octo_search/data/api/github_api_exception.dart';
+import 'package:octo_search/data/api/index.dart';
 import 'package:octo_search/data/models/repository_search.dart';
-import 'package:octo_search/data/models/user_search.dart';
 import 'package:octo_search/data/models/user_profile.dart';
+import 'package:octo_search/data/models/user_search.dart';
 
 /// Service class for making requests to the GitHub API.
 ///
-/// For more information, see: https://docs.github.com/en/rest
+/// This class provides static methods to interact with various GitHub API
+/// endpoints, such as searching for users and repositories, and fetching user profiles.
+/// It handles API authentication using a personal access token stored securely.
+///
+/// For more information on the GitHub REST API, see:
+/// https://docs.github.com/en/rest
 class GitHubApiService {
+  /// The default number of items to request per page for paginated API calls.
   static const int defaultPerPage = 30;
 
+  /// The key used to store the GitHub access token in secure storage.
   static const _tokenKey = 'github_access_token';
+
+  /// An instance of [FlutterSecureStorage] for securely storing and retrieving the GitHub access token.
+  /// Android options are configured to use encrypted shared preferences.
   static const _storage = FlutterSecureStorage(
     aOptions: AndroidOptions(
       encryptedSharedPreferences: true,
     ),
   );
 
+  /// Sets (saves) the GitHub personal access token to secure storage.
+  ///
+  /// [token] The GitHub personal access token string to save.
   static Future<void> setAccessToken(String token) async {
     await _storage.write(key: _tokenKey, value: token);
   }
 
+  /// Retrieves the GitHub personal access token from secure storage.
+  ///
+  /// Returns the token string if found, otherwise returns null.
   static Future<String?> _getAccessToken() async {
     return await _storage.read(key: _tokenKey);
   }
 
-  /// A common method to fetch data from the GitHub API.
+  /// A common private method to fetch data from the GitHub API.
   ///
-  /// [path] - The API endpoint path (excluding the base URL).
-  /// [queryParams] - Optional query parameters to include in the request.
+  /// This method handles the construction of the URI, adding authentication
+  /// headers if an access token is available, making the HTTP GET request,
+  /// and basic error handling.
+  ///
+  /// [path] The API endpoint path (e.g., '/search/users').
+  /// [queryParams] Optional query parameters for the request.
+  /// Returns a [Future] that completes with a [Map<String, dynamic>] representing the JSON response if successful.
+  /// Throws a [GitHubException] or [GitHubGenericException] on failure.
   static Future<Map<String, dynamic>> _fetchFromApi(String path, {Map<String, String>? queryParams}) async {
     const String authority = 'api.github.com';
 
@@ -70,9 +92,12 @@ class GitHubApiService {
     }
   }
 
-  /// Searches for GitHub users based on the provided query.
+  /// Searches for GitHub users based on the provided query string.
   ///
-  /// Returns a [UserSearch] object containing the search results.
+  /// [query] The search query (e.g., a username or part of a name).
+  /// [page] The page number for pagination (defaults to 1).
+  /// [perPage] The number of results per page (defaults to [defaultPerPage]).
+  /// Returns a [Future] that completes with a [UserSearch] object containing the search results.
   ///
   /// For more information, see: https://docs.github.com/en/rest/search/search#search-users
   static Future<UserSearch> getUsers(
@@ -96,7 +121,8 @@ class GitHubApiService {
 
   /// Retrieves detailed profile information for a specific GitHub user.
   ///
-  /// Returns a [UserProfile] object containing the user's details.
+  /// [username] The GitHub username of the user to fetch.
+  /// Returns a [Future] that completes with a [UserProfile] object containing the user's details.
   ///
   /// For more information, see: https://docs.github.com/en/rest/users/users#get-a-user
   static Future<UserProfile> getUserProfile(String username) async {
@@ -109,9 +135,15 @@ class GitHubApiService {
     }
   }
 
-  /// Searches for repositories owned by a specific user with optional filters.
+  /// Searches for repositories owned by a specific user, with optional filters.
   ///
-  /// Returns a [RepositorySearch] object containing the search results.
+  /// [username] The GitHub username whose repositories are to be searched.
+  /// [page] The page number for pagination (defaults to 1).
+  /// [perPage] The number of results per page (defaults to [defaultPerPage]).
+  /// [filter] A [RepositoryFilters] enum value to filter the results (e.g., non-forked).
+  /// Returns a [Future] that completes with a [RepositorySearch] object containing the search results.
+  /// Handles a specific [GitHubValidationException] by returning an empty result
+  /// as a workaround for an API behavior with users having only private repositories.
   ///
   /// For more information, see: https://docs.github.com/en/rest/search/search#search-repositories
   static Future<RepositorySearch> getRepositories(

@@ -1,17 +1,18 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
-/// A widget that displays a user's avatar image.
+/// A widget that displays a user's avatar image, typically circular.
 ///
-/// It uses [CachedNetworkImage] to load and cache the image from a URL.
-/// It displays a placeholder while loading and an error icon if the image fails to load.
+/// It uses [CachedNetworkImage] to efficiently load and cache the image
+/// from the provided [url]. While the image is loading, a circular progress
+/// indicator is shown. If the image fails to load, a default person icon is displayed.
 class UserAvatar extends StatelessWidget {
   /// The URL of the user's avatar image.
   final String url;
 
-  /// The size (width and height) of the avatar.
+  /// The diameter of the circular avatar.
   ///
-  /// Defaults to 36.
+  /// Defaults to 36.0 pixels.
   final double size;
 
   const UserAvatar({

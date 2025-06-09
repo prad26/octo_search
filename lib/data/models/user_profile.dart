@@ -5,9 +5,8 @@ part 'user_profile.freezed.dart';
 part 'user_profile.g.dart';
 
 /// Model representing a GitHub user profile with detailed information.
-/// 
-/// This model contains comprehensive information about a GitHub user
-/// as returned by the GitHub API's user endpoint.
+///
+/// This model contains comprehensive information about a GitHub user as returned by the GitHub API's user endpoint.
 @freezed
 abstract class UserProfile with _$UserProfile {
   const factory UserProfile({
@@ -29,14 +28,10 @@ abstract class UserProfile with _$UserProfile {
     @JsonKey(name: 'public_gists') required int publicGists,
     required int followers,
     required int following,
-    
-    @JsonKey(name: 'created_at') 
-    @DateTimeConverter()
-    required DateTime createdAt,
-    
-    @JsonKey(name: 'updated_at') 
-    @DateTimeConverter()
-    required DateTime updatedAt,
+
+    @JsonKey(name: 'created_at') @DateTimeConverter() required DateTime createdAt,
+
+    @JsonKey(name: 'updated_at') @DateTimeConverter() required DateTime updatedAt,
   }) = _UserProfile;
 
   factory UserProfile.fromJson(Map<String, dynamic> json) => _$UserProfileFromJson(json);
