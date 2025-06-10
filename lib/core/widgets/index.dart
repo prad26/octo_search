@@ -5,6 +5,7 @@ export 'expressive_list_tile.dart';
 export 'infinite_scroll_list.dart';
 export 'loading.dart';
 export 'no_data.dart';
+export 'octo_scaffold.dart';
 export 'scroll_top_floating_button.dart';
 export 'search_input.dart';
 export 'user_avatar.dart';

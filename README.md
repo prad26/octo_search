@@ -1,8 +1,11 @@
 # OctoSearch - GitHub User Search Client
 
+This README provides a comprehensive guide to understanding, setting up, and running the OctoSearch application.
+
+
 ## Project Overview
 
-OctoSearch is a Flutter-based client application designed to allow users to search for GitHub users by keyword, view a list of the results, and explore user profiles along with their repositories. It addresses the common challenge of GitHub API rate limits by incorporating support for Personal Access Tokens.
+OctoSearch is a Flutter-based client application designed to allow users to search for GitHub users by keyword, view a list of the results, and explore user profiles along with their repositories.
 
 ## Features
 
@@ -17,21 +20,9 @@ The application implements the following features:
 -   **State Handling:** Clear indicators for loading, no results, and error states.
 
 **2. User Profile & Repository View:**
--   **Detailed User Information:** Displays comprehensive information about the selected user at the top:
-    -   Icon (Avatar)
-    -   Username (Login)
-    -   Full Name (if available)
-    -   Bio
-    -   Number of Followers
-    -   Number of Following
-    -   Location, Company, Blog/Website, Email (if available, with clickable links)
-    -   Join Date
--   **User Repositories List:** Displays a list of the user's public repositories, filterable by all, non-forked (default), and forked. Details for each repository include:
-    -   Repository Name
-    -   Description
-    -   Number of Stars, Forks and Open Issues
-    -   Primary Programming Language
--   **Open Repository URL:** Users can tap on a repository to open its URL in an external browser.
+-   **Detailed User Information:** Displays comprehensive information about the selected user at the top.
+-   **User Repositories List:** Displays a list of the user's public repositories, filterable by all, non-forked (default), and forked.
+-   **Open Repository URL:** Users can tap on a repository to open its URL in the browser.
 -   **State Handling:** Clear indicators for loading, no results, and error states.
 
 **3. API Interaction & Authentication:**
@@ -40,6 +31,20 @@ The application implements the following features:
     -   Prompts users to enter a GitHub Personal Access Token when API rate limits are hit for unauthenticated requests or if authentication is required.
     -   Securely stores the PAT using `flutter_secure_storage`.
 -   **Error Handling:** Robust error handling for API requests, guiding the user when issues like rate limiting or unauthorized access occur.
+
+## Demo Video
+
+
+
+## API Usage
+
+-   **GitHub API v3:** The application exclusively uses the official [GitHub REST API v3](https://docs.github.com/en/rest).
+-   **Endpoints Used:**
+    -   `GET /search/users`: For [searching users](https://docs.github.com/en/rest/search/search#search-users).
+    -   `GET /users/{username}`: For [fetching user profile details](https://docs.github.com/en/rest/users/users#get-a-user).
+    -   `GET /search/repositories`: For [searching repositories](https://docs.github.com/en/rest/search/search#search-repositories) (used to fetch user repositories, filtering out forks).
+-   **Authentication:** As mentioned, Personal Access Tokens are used to overcome rate limits. 
+
 
 ## Prerequisites
 
@@ -141,19 +146,3 @@ octo_search/
 ├── README.md             # This file
 └── watch_changes.bat     # Batch script to run build_runner in watch mode
 ```
-
-## API Usage
-
--   **GitHub API v3:** The application exclusively uses the official [GitHub REST API v3](https://docs.github.com/en/rest).
--   **Endpoints Used:**
-    -   `GET /search/users`: For [searching users](https://docs.github.com/en/rest/search/search#search-users).
-    -   `GET /users/{username}`: For [fetching user profile details](https://docs.github.com/en/rest/users/users#get-a-user).
-    -   `GET /search/repositories`: For [searching repositories](https://docs.github.com/en/rest/search/search#search-repositories) (used to fetch user repositories, filtering out forks).
--   **Authentication:** As mentioned, Personal Access Tokens are used to overcome rate limits. The token is included in the `Authorization` header of API requests.
-
-## Demo Video
-
-
----
-
-This README provides a comprehensive guide to understanding, setting up, and running the OctoSearch application.

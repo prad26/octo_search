@@ -38,7 +38,7 @@ class UserAvatar extends StatelessWidget {
       ),
       placeholder: (context, url) => Padding(
         padding: EdgeInsets.all(size * 0.2),
-        child: CircularProgressIndicator(),
+        child: CircularProgressIndicator(strokeWidth: 2),
       ),
       errorWidget: (context, url, error) => Icon(Icons.person_rounded),
     );

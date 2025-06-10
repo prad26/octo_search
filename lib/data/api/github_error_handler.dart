@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:octo_search/core/widgets/index.dart';
-import 'package:octo_search/data/api/github_api_exception.dart';
+import 'package:octo_search/data/api/index.dart';
 
 /// A helper class to manage certain [GitHubException] types by prompting
 /// the user to add an access token.
 ///
-/// When specific API errors occur, this handler shows a dialog to input a GitHub access token. 
+/// When specific API errors occur, this handler shows a dialog to input a GitHub access token.
 /// If a token is successfully added, the original API call can be retried.
 class GitHubErrorHandler {
   /// A flag to ensure that only one access token dialog is shown at a time.
@@ -23,7 +23,7 @@ class GitHubErrorHandler {
   /// [apiCall] is a function that returns a [Future] representing the API call.
   /// [onError] is an optional callback executed for unhandled exceptions.
   /// Returns the result of [apiCall] if successful.
-  static Future<T> handleApiError<T>({
+  static Future<T?> handleApiError<T>({
     required BuildContext context,
     required Future<T> Function() apiCall,
     VoidCallback? onError,
@@ -43,6 +43,9 @@ class GitHubErrorHandler {
             // If the dialog was dismissed or failed, throw a generic exception or rethrow e.
             throw GitHubGenericException();
           }
+
+        case GitHubNotFoundException():
+          return null;
 
         default:
           // For all other types of exceptions (including other GitHubException subtypes or non-GitHub exceptions),

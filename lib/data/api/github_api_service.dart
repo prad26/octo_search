@@ -45,6 +45,11 @@ class GitHubApiService {
     return await _storage.read(key: _tokenKey);
   }
 
+  /// Deletes the GitHub personal access token from secure storage.
+  static Future<void> clearAccessToken() async {
+    await _storage.delete(key: _tokenKey);
+  }
+
   /// A common private method to fetch data from the GitHub API.
   ///
   /// This method handles the construction of the URI, adding authentication

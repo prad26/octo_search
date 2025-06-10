@@ -70,7 +70,7 @@ class _RepositoryListState extends State<RepositoryList> {
   /// Updates [_repoCount] with the total count from the API response.
   /// Returns a [List<RepositoryItem>] for the current page.
   Future<List<RepositoryItem>> _getRepositories(int page) async {
-    return GitHubErrorHandler.handleApiError(
+    final repositories = await GitHubErrorHandler.handleApiError(
       context: context,
       apiCall: () async {
         final result = await GitHubApiService.getRepositories(
@@ -87,6 +87,8 @@ class _RepositoryListState extends State<RepositoryList> {
         return result.items;
       },
     );
+
+    return repositories ?? [];
   }
 
   /// Opens the given [url] in an external browser or app.

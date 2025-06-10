@@ -8,7 +8,7 @@ part 'github_api_exception.freezed.dart';
 /// Use the [GitHubException.from] factory to create an appropriate exception instance
 /// based on HTTP status codes and response bodies.
 @freezed
-sealed class GitHubException with _$GitHubException {
+sealed class GitHubException with _$GitHubException implements Exception {
   const GitHubException._();
 
   /// Creates a [GitHubException] based on the HTTP status code and response body.

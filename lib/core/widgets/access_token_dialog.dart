@@ -39,6 +39,12 @@ class _AccessTokenDialogState extends State<AccessTokenDialog> {
   String? _errorMessage;
 
   @override
+  void initState() {
+    super.initState();
+    GitHubApiService.clearAccessToken(); // Clear any existing token.
+  }
+
+  @override
   void dispose() {
     _tokenTextController.dispose();
     super.dispose();

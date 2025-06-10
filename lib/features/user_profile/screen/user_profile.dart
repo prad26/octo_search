@@ -55,20 +55,16 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
   /// Uses [GitHubErrorHandler.handleApiError] to manage API calls and errors.
   /// Updates [_isLoading], [_user], and [_errorMessage] based on the API response.
   Future<void> _getUserProfile() async {
-    GitHubErrorHandler.handleApiError(
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+    });
+
+    final user = await GitHubErrorHandler.handleApiError(
       context: context,
       apiCall: () async {
-        setState(() {
-          _isLoading = true;
-          _errorMessage = null;
-        });
-
         final result = await GitHubApiService.getUserProfile(widget.username);
-
-        setState(() {
-          _user = result;
-          _isLoading = false;
-        });
+        return result;
       },
       onError: () {
         setState(() {
@@ -77,6 +73,11 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
         });
       },
     );
+
+    setState(() {
+      _user = user;
+      _isLoading = false;
+    });
   }
 
   /// Initializes the state. Called when this widget is inserted into the tree.
@@ -90,18 +91,11 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.primaryContainer,
-        title: Text('OctoSearch: ${widget.username}'),
-      ),
-      floatingActionButton: ScrollTopFloatingButton(controller: _scrollController),
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16.0),
-          child: _buildContent(),
-        ),
-      ),
+    return OctoScaffold(
+      extraTitle: widget.username,
+      scrollController: _scrollController,
+      topPadding: 0,
+      child: _buildContent(),
     );
   }
 
@@ -235,7 +229,13 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
           value: profile.company,
           onTap: (value) {
             if (value.startsWith('@')) {
-              _openLink('https://www.github.com/${value.substring(1)}');
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => UserProfileScreen(
+                    username: value.substring(1),
+                  ),
+                ),
+              );
             }
           },
         ),

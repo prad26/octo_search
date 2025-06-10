@@ -82,7 +82,7 @@ class _UserSearchScreenState extends State<UserSearchScreen> {
       _hasSearched = true;
     });
 
-    return GitHubErrorHandler.handleApiError(
+    final users = await GitHubErrorHandler.handleApiError(
       context: context,
       apiCall: () async {
         final result = await GitHubApiService.getUsers(
@@ -94,6 +94,8 @@ class _UserSearchScreenState extends State<UserSearchScreen> {
         return result.items;
       },
     );
+
+    return users ?? [];
   }
 
   /// Initializes the state. Called when this widget is inserted into the tree.
@@ -122,34 +124,21 @@ class _UserSearchScreenState extends State<UserSearchScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.primaryContainer,
-        title: const Text('OctoSearch'),
-      ),
-      floatingActionButton: ScrollTopFloatingButton(controller: _scrollController),
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.only(
-            left: 16,
-            right: 16,
-            top: 12,
+    return OctoScaffold(
+      scrollController: _scrollController,
+      child: Column(
+        spacing: 12,
+        children: [
+          SearchInput(
+            hintText: 'Search GitHub Users',
+            controller: _searchTextController,
+            onSubmitted: (_) => _pagingController.refresh(),
+            onClear: _pagingController.refresh,
           ),
-          child: Column(
-            spacing: 12,
-            children: [
-              SearchInput(
-                hintText: 'Search GitHub Users',
-                controller: _searchTextController,
-                onSubmitted: (_) => _pagingController.refresh(),
-                onClear: _pagingController.refresh,
-              ),
-              Expanded(
-                child: _buildUserList(),
-              ),
-            ],
+          Expanded(
+            child: _buildUserList(),
           ),
-        ),
+        ],
       ),
     );
   }
