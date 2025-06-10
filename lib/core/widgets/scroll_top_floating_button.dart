@@ -22,7 +22,6 @@ class ScrollTopFloatingButton extends StatefulWidget {
   State<ScrollTopFloatingButton> createState() => _ScrollTopFloatingButtonState();
 }
 
-
 class _ScrollTopFloatingButtonState extends State<ScrollTopFloatingButton> {
   /// Whether the floating action button is currently visible.
   bool _isVisible = false;

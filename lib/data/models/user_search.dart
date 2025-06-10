@@ -5,7 +5,7 @@ part 'user_search.g.dart';
 
 /// Model representing GitHub user search results.
 ///
-/// This model contains the search results returned by the GitHub API's user search endpoint. 
+/// This model contains the search results returned by the GitHub API's user search endpoint.
 /// It includes the total count of matching users and a list of user items with basic information.
 @freezed
 abstract class UserSearch with _$UserSearch {

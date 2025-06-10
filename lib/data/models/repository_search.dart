@@ -5,7 +5,7 @@ part 'repository_search.g.dart';
 
 /// Model representing GitHub repository search results.
 ///
-/// This model contains the search results returned by the GitHub API's repository search endpoint. 
+/// This model contains the search results returned by the GitHub API's repository search endpoint.
 /// It includes the total count of matching repositories and a list of repository items with detailed information.
 @freezed
 abstract class RepositorySearch with _$RepositorySearch {
