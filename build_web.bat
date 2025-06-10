@@ -45,10 +45,11 @@ if errorlevel 1 (
 REM Moving the build output to a specific directory
 echo.
 echo [4/4] Moving build output to web-release directory...
-if not exist "web-release" (
-    mkdir web-release
+if exist "web-release" (
+    rmdir /S /Q "web-release"
 )
-move /Y "build\web\*" "web-release\"
+mkdir web-release
+xcopy "build\web\*" "web-release\" /E /I /Y
 
 echo.
 echo ✅ Build completed successfully!

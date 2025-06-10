@@ -27387,7 +27387,7 @@ a6c(a,b,c,d){return A.aO4(a,b,c,d)},
 aO4(a,b,c,d){var s=0,r=A.N(t.H_),q,p=2,o=[],n,m,l,k,j,i
 var $async$a6c=A.H(function(e,f){if(e===1){o.push(f)
 s=p}while(true)switch(s){case 0:k=t.N
-j=A.at(["q","user:"+a+" "+A.aQo(b),"page",B.f.k(c),"per_page",B.f.k(d)],k,k)
+j=A.at(["q","user:"+a+" "+A.aQo(b),"page",B.f.k(c),"per_page",B.f.k(d),"sort","updated"],k,k)
 p=4
 s=7
 return A.I(A.th("/search/repositories",j),$async$a6c)

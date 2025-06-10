@@ -161,6 +161,7 @@ class GitHubApiService {
       'q': 'user:$username ${filter.query}',
       'page': page.toString(),
       'per_page': perPage.toString(),
+      'sort': 'updated',
     };
 
     try {
