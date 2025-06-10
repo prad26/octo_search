@@ -32,13 +32,15 @@ class OctoScaffold extends StatelessWidget {
     required this.child,
   });
 
+  static const maxWidth = 768.0;
+
   @override
   Widget build(BuildContext context) {
     final title = extraTitle != null ? 'OctoSearch: $extraTitle' : 'OctoSearch';
 
     return Scaffold(
       appBar: AppBar(
-        centerTitle: kIsWeb,
+        centerTitle: MediaQuery.sizeOf(context).width > maxWidth,
         backgroundColor: Theme.of(context).colorScheme.primaryContainer,
         title: Text(title),
       ),
@@ -46,7 +48,7 @@ class OctoScaffold extends StatelessWidget {
       body: SafeArea(
         child: Center(
           child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 768),
+            constraints: const BoxConstraints(maxWidth: maxWidth),
             child: Padding(
               padding: EdgeInsets.only(
                 left: 16,
