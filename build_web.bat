@@ -36,7 +36,7 @@ if errorlevel 1 (
 REM Building APK
 echo.
 echo [3/4] Building Web application...
-call flutter build web --release
+call flutter build web --base-href "/octo_search/" --release
 if errorlevel 1 (
     echo Build failed. Check the logs.
     exit /b 1
