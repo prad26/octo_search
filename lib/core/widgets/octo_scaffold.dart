@@ -1,5 +1,6 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:octo_search/core/widgets/index.dart';
+import 'package:octo_search/core/widgets/widgets.dart';
 
 /// A custom Scaffold widget for the OctoSearch application.
 ///
@@ -37,7 +38,7 @@ class OctoScaffold extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        centerTitle: true,
+        centerTitle: kIsWeb,
         backgroundColor: Theme.of(context).colorScheme.primaryContainer,
         title: Text(title),
       ),

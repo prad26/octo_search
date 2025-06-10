@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:octo_search/core/helpers/debouncer.dart';
-import 'package:octo_search/core/widgets/index.dart';
-import 'package:octo_search/data/api/index.dart';
+import 'package:octo_search/core/widgets/widgets.dart';
+import 'package:octo_search/data/api/api.dart';
 import 'package:octo_search/data/models/user_search.dart';
 import 'package:octo_search/features/user_profile/screen/user_profile.dart';
 
@@ -64,7 +64,7 @@ class _UserSearchScreenState extends State<UserSearchScreen> {
   ///
   /// If the search query is empty, it resets the [_hasSearched] flag and returns
   /// an empty list. Otherwise, it sets [_hasSearched] to true and makes the API call
-  /// using [GitHubErrorHandler.handleApiError] for error management.
+  /// using [GitHubApiHandler.execute] for error management.
   ///
   /// [page] The page number to fetch.
   /// Returns a [List<UserSearchItem>] for the current page.
@@ -82,7 +82,7 @@ class _UserSearchScreenState extends State<UserSearchScreen> {
       _hasSearched = true;
     });
 
-    final users = await GitHubErrorHandler.handleApiError(
+    final users = await GitHubApiHandler.execute(
       context: context,
       apiCall: () async {
         final result = await GitHubApiService.getUsers(

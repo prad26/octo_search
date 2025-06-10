@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
-import 'package:octo_search/core/widgets/index.dart';
+import 'package:octo_search/core/widgets/widgets.dart';
 
 /// A reusable widget for displaying an infinitely scrolling list with built-in
 /// pagination, loading, error, and empty states.

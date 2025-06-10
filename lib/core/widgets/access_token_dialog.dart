@@ -1,7 +1,7 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:octo_search/core/helpers/index.dart';
-import 'package:octo_search/data/api/index.dart';
+import 'package:octo_search/core/helpers/helpers.dart';
+import 'package:octo_search/data/api/api.dart';
 
 /// A dialog that prompts the user to enter a GitHub Personal Access Token.
 ///

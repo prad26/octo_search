@@ -1,6 +1,7 @@
 export 'access_token_dialog.dart';
 export 'container_chip.dart';
 export 'error_message.dart';
+export 'error_snack_bar.dart';
 export 'expressive_list_tile.dart';
 export 'infinite_scroll_list.dart';
 export 'loading.dart';

@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:intl/intl.dart';
 import 'package:octo_search/core/enums/repository_filters.dart';
-import 'package:octo_search/core/helpers/index.dart';
-import 'package:octo_search/core/widgets/index.dart';
-import 'package:octo_search/data/api/index.dart';
+import 'package:octo_search/core/helpers/helpers.dart';
+import 'package:octo_search/core/widgets/widgets.dart';
+import 'package:octo_search/data/api/api.dart';
 import 'package:octo_search/data/models/repository_search.dart';
 
 /// A widget that displays a filterable, paginated list of repositories for a GitHub user.
@@ -66,11 +66,11 @@ class _RepositoryListState extends State<RepositoryList> {
   /// Fetches a page of repositories from the GitHub API based on the current
   /// [widget.username], [_selectedFilter], and the given [page] number.
   ///
-  /// Uses [GitHubErrorHandler.handleApiError] for error management.
+  /// Uses [GitHubApiHandler.execute] for error management.
   /// Updates [_repoCount] with the total count from the API response.
   /// Returns a [List<RepositoryItem>] for the current page.
   Future<List<RepositoryItem>> _getRepositories(int page) async {
-    final repositories = await GitHubErrorHandler.handleApiError(
+    final repositories = await GitHubApiHandler.execute(
       context: context,
       apiCall: () async {
         final result = await GitHubApiService.getRepositories(

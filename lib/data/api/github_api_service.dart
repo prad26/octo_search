@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
 import 'package:octo_search/core/enums/repository_filters.dart';
-import 'package:octo_search/data/api/index.dart';
+import 'package:octo_search/data/api/api.dart';
 import 'package:octo_search/data/models/repository_search.dart';
 import 'package:octo_search/data/models/user_profile.dart';
 import 'package:octo_search/data/models/user_search.dart';

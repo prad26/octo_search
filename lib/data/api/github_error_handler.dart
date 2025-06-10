@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:octo_search/core/widgets/index.dart';
-import 'package:octo_search/data/api/index.dart';
+import 'package:octo_search/core/widgets/widgets.dart';
+import 'package:octo_search/data/api/api.dart';
 
 /// A helper class to manage certain [GitHubException] types by prompting
 /// the user to add an access token.
 ///
 /// When specific API errors occur, this handler shows a dialog to input a GitHub access token.
 /// If a token is successfully added, the original API call can be retried.
-class GitHubErrorHandler {
+class GitHubApiHandler {
   /// A flag to ensure that only one access token dialog is shown at a time.
   static bool _isShowingDialog = false;
 
@@ -23,28 +23,43 @@ class GitHubErrorHandler {
   /// [apiCall] is a function that returns a [Future] representing the API call.
   /// [onError] is an optional callback executed for unhandled exceptions.
   /// Returns the result of [apiCall] if successful.
-  static Future<T?> handleApiError<T>({
+  static Future<T?> execute<T>({
     required BuildContext context,
     required Future<T> Function() apiCall,
+    ValueChanged<T?>? onSuccess,
     VoidCallback? onError,
   }) async {
     try {
-      return await apiCall();
+      final result = await apiCall();
+      onSuccess?.call(result);
+
+      return result;
     } catch (e) {
       switch (e) {
         case GitHubUnauthorizedException():
         case GitHubForbiddenException():
         case GitHubRateLimitExceeded():
+          if (context.mounted == false) {
+            // If the context is not mounted, we cannot show a dialog.
+            // Rethrow the exception to be handled elsewhere.
+            rethrow;
+          }
+
           // If e is one of these specific GitHub exceptions, proceed to show the access token dialog.
           final tokenAdded = await _showAccessTokenDialog(context);
           if (tokenAdded) {
-            return await apiCall(); // Retry.
+            // Retry after the user has added a token.
+            final result = await apiCall();
+            onSuccess?.call(result);
+
+            return result;
           } else {
             // If the dialog was dismissed or failed, throw a generic exception or rethrow e.
             throw GitHubGenericException();
           }
 
         case GitHubNotFoundException():
+          onSuccess?.call(null);
           return null;
 
         default:

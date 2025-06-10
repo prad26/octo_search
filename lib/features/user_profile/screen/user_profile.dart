@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:octo_search/core/helpers/index.dart';
-import 'package:octo_search/core/widgets/index.dart';
-import 'package:octo_search/data/api/index.dart';
+import 'package:octo_search/core/helpers/helpers.dart';
+import 'package:octo_search/core/widgets/widgets.dart';
+import 'package:octo_search/data/api/api.dart';
 import 'package:octo_search/data/models/user_profile.dart';
 import 'package:octo_search/features/user_profile/widgets/repository_list.dart';
 
@@ -52,7 +52,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
 
   /// Fetches the user profile data from the GitHub API.
   ///
-  /// Uses [GitHubErrorHandler.handleApiError] to manage API calls and errors.
+  /// Uses [GitHubApiHandler.execute] to manage API calls and errors.
   /// Updates [_isLoading], [_user], and [_errorMessage] based on the API response.
   Future<void> _getUserProfile() async {
     setState(() {
@@ -60,11 +60,14 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
       _errorMessage = null;
     });
 
-    final user = await GitHubErrorHandler.handleApiError(
+    await GitHubApiHandler.execute(
       context: context,
-      apiCall: () async {
-        final result = await GitHubApiService.getUserProfile(widget.username);
-        return result;
+      apiCall: () => GitHubApiService.getUserProfile(widget.username),
+      onSuccess: (user) {
+        setState(() {
+          _user = user;
+          _isLoading = false;
+        });
       },
       onError: () {
         setState(() {
@@ -73,11 +76,6 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
         });
       },
     );
-
-    setState(() {
-      _user = user;
-      _isLoading = false;
-    });
   }
 
   /// Initializes the state. Called when this widget is inserted into the tree.

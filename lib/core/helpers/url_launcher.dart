@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:octo_search/core/helpers/index.dart';
+import 'package:octo_search/core/widgets/widgets.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 /// Opens a URL in the appropriate app or browser.
