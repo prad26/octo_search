@@ -7,6 +7,10 @@ This README provides a comprehensive guide to understanding, setting up, and run
 
 OctoSearch is a Flutter-based client application designed to allow users to search for GitHub users by keyword, view a list of the results, and explore user profiles along with their repositories.
 
+## Why 'OctoSearch'?
+
+The name 'OctoSearch' is derived from GitHub's mascot, the "Octocat". You can find more about [GitHub's mascots and brand elements](https://brand.github.com/graphic-elements/mascots).
+
 ## Features
 
 The application implements the following features:
@@ -108,7 +112,7 @@ To automatically watch for changes and regenerate code, use the provided script:
 
 ## Building the App
 
-**Build Release APK:**
+### Build Release APK
 To build a release version of the Android APK, you can use the provided batch script.
 
 -   On Windows:
@@ -117,6 +121,16 @@ To build a release version of the Android APK, you can use the provided batch sc
     ```
     This script will clean the project, fetch dependencies, and build the release APKs.
     The output APKs will be located in the `build\app\outputs\flutter-apk\` directory.
+
+### Build Web
+To build a release version of the Web application, you can use the provided batch script.
+
+-   On Windows:
+    ```cmd
+    .\build_web.bat
+    ```
+    This script will clean the project, fetch dependencies, and build the Web application.
+    The output will be located in the `web-release\` directory which is served by GitHub Pages.
 
 ## Project Structure Overview
 
@@ -142,6 +156,7 @@ octo_search/
 ├── web/                  # Web specific files
 ├── analysis_options.yaml # Dart static analysis options
 ├── build_apk.bat         # Batch script to build release APK
+├── build_web.bat         # Batch script to build release Web app
 ├── pubspec.yaml          # Project dependencies and metadata
 ├── README.md             # This file
 └── watch_changes.bat     # Batch script to run build_runner in watch mode

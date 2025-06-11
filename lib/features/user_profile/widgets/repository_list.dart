@@ -6,6 +6,8 @@ import 'package:octo_search/core/helpers/helpers.dart';
 import 'package:octo_search/core/widgets/widgets.dart';
 import 'package:octo_search/data/api/api.dart';
 import 'package:octo_search/data/models/repository_search.dart';
+import 'package:octo_search/features/user_profile/widgets/repository_filter_button.dart';
+import 'package:octo_search/features/user_profile/widgets/repository_stats.dart';
 
 /// A widget that displays a filterable, paginated list of repositories for a GitHub user.
 ///
@@ -164,35 +166,9 @@ class _RepositoryListState extends State<RepositoryList> {
           ],
         ),
 
-        MenuAnchor(
-          builder: (BuildContext context, MenuController controller, Widget? child) {
-            return ElevatedButton.icon(
-              onPressed: () {
-                if (controller.isOpen) {
-                  controller.close();
-                } else {
-                  controller.open();
-                }
-              },
-              icon: const Icon(Icons.filter_alt_rounded),
-              label: Row(
-                spacing: 4,
-                children: [
-                  Text(_selectedFilter.label),
-                  Icon(
-                    controller.isOpen ? Icons.keyboard_arrow_up_rounded : Icons.keyboard_arrow_down_rounded,
-                    size: 20,
-                  ),
-                ],
-              ),
-            );
-          },
-          menuChildren: RepositoryFilters.values.map((filter) {
-            return MenuItemButton(
-              onPressed: () => _updateFilter(filter),
-              child: Text(filter.label),
-            );
-          }).toList(),
+        RepositoryFilterButton(
+          selectedFilter: _selectedFilter,
+          onChange: _updateFilter,
         ),
       ],
     );
@@ -210,8 +186,6 @@ class _RepositoryListState extends State<RepositoryList> {
       scrollController: widget.scrollController,
       fetchPage: _getRepositories,
       itemBuilder: (context, index, repo, itemsLength) {
-        final languageColor = getColorForLanguage(repo.language);
-
         return ExpressiveListTile(
           isFirst: index == 0,
           isLast: index == itemsLength - 1,
@@ -247,56 +221,15 @@ class _RepositoryListState extends State<RepositoryList> {
             spacing: 4,
             children: [
               if (repo.description != null) Text(repo.description!),
-              _buildRepoStats(repo, languageColor),
+              RepositoryStats(
+                repo: repo,
+                numberFormat: widget.numberFormat,
+              ),
             ],
           ),
           onTap: () => _openLink(repo.htmlUrl),
         );
       },
-    );
-  }
-
-  /// Builds a [Row] displaying statistics for a single repository.
-  ///
-  /// Includes star count, fork count, open issues count, and the primary language
-  /// with a colored chip.
-  ///
-  /// [repo] The [RepositoryItem] data for which to display stats.
-  /// [languageColor] The color associated with the repository's primary language.
-  Row _buildRepoStats(RepositoryItem repo, Color languageColor) {
-    return Row(
-      children: [
-        Icon(Icons.star_rounded, size: 16, color: Colors.amber.shade700),
-        const SizedBox(width: 2),
-        Text(widget.numberFormat.format(repo.stargazersCount)),
-
-        const SizedBox(width: 8),
-
-        Icon(Icons.call_split_rounded, size: 16, color: Colors.blue),
-        const SizedBox(width: 2),
-        Text(widget.numberFormat.format(repo.forksCount)),
-
-        const SizedBox(width: 8),
-
-        Text(
-          '!',
-          style: TextStyle(
-            fontSize: 16,
-            color: Colors.red.shade700,
-          ),
-        ),
-        const SizedBox(width: 4),
-        Text(widget.numberFormat.format(repo.openIssuesCount)),
-
-        if (repo.language != null) ...[
-          const SizedBox(width: 8),
-          ContainerChip(
-            icon: Icons.code_rounded,
-            label: repo.language!,
-            color: languageColor,
-          ),
-        ],
-      ],
     );
   }
 }

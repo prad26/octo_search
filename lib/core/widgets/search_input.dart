@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 
 /// A customized search input field widget.
 ///
-/// This widget provides a [TextField] tailored for search functionality.
 /// It includes a search icon as a prefix and a clear button as a suffix
 /// that appears when text is entered. It also handles submission and clearing of the search query.
 class SearchInput extends StatefulWidget {
@@ -19,12 +18,16 @@ class SearchInput extends StatefulWidget {
   /// A callback function that is invoked when the user taps the clear button.
   final VoidCallback onClear;
 
+  /// Whether the input field should automatically gain focus when the widget is built.
+  final bool autoFocus;
+
   const SearchInput({
     super.key,
     required this.hintText,
     required this.controller,
     required this.onSubmitted,
     required this.onClear,
+    this.autoFocus = true,
   });
 
   @override
@@ -67,21 +70,17 @@ class _SearchInputState extends State<SearchInput> {
 
   @override
   Widget build(BuildContext context) {
-    return TextField(
+    return SearchBar(
       controller: widget.controller,
+      autoFocus: widget.autoFocus,
+      hintText: widget.hintText,
       textInputAction: TextInputAction.search,
       onSubmitted: widget.onSubmitted,
-      decoration: InputDecoration(
-        hintText: widget.hintText,
-        prefixIcon: const Icon(
-          Icons.search,
-          semanticLabel: 'Search',
-        ),
-        suffixIcon: _buildClearButton(),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(30),
-        ),
+      leading: const Icon(
+        Icons.search,
+        semanticLabel: 'Search',
       ),
+      trailing: [_buildClearButton()],
     );
   }
 
@@ -89,9 +88,9 @@ class _SearchInputState extends State<SearchInput> {
   ///
   /// Returns an [IconButton] with a clear icon if [_hasText] is true,
   /// otherwise returns null (no button).
-  Widget? _buildClearButton() {
+  Widget _buildClearButton() {
     if (!_hasText) {
-      return null;
+      return SizedBox.shrink(); // Return an empty widget if no text.
     }
 
     return IconButton(
