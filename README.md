@@ -39,9 +39,9 @@ The application implements the following features:
 ## Demo
 
 ### Video 
-<video controls src="OctoSearch - screen recording.mp4" title="OctoSearch Demo" style="max-width: 320px;">
-  Your browser does not support the video tag. You can <a href="OctoSearch - screen recording.mp4">watch the video here</a>.
-</video>
+https://github.com/user-attachments/assets/8c668bf7-6dd4-407b-b478-d13be6815b54
+
+
 
 ### Web
 Why not try it out directly? You can access the live demo of OctoSearch on GitHub Pages:
