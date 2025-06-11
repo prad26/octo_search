@@ -36,9 +36,16 @@ The application implements the following features:
     -   Securely stores the PAT using `flutter_secure_storage`.
 -   **Error Handling:** Robust error handling for API requests, guiding the user when issues like rate limiting or unauthorized access occur.
 
-## Demo Video
+## Demo
 
+### Video 
+<video controls src="OctoSearch - screen recording.mp4" title="OctoSearch Demo" style="max-width: 320px;">
+  Your browser does not support the video tag. You can <a href="OctoSearch - screen recording.mp4">watch the video here</a>.
+</video>
 
+### Web
+Why not try it out directly? You can access the live demo of OctoSearch on GitHub Pages:
+[OctoSearch Web Demo](https://prad26.github.io/octo_search/)
 
 ## API Usage
 
